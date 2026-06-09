@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora ROI · SOC-CSIRT CEDIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ===== CEDIA SOC-CSIRT INSTITUTIONAL PALETTE ===== */
+  :root {
+    /* Brand */
+    --navy:        #0E2A5C;
+    --navy-dark:   #081A3D;
+    --navy-deep:   #061535;
+    --navy-mid:    #152F66;
+    --navy-light:  #1F3B7A;
+
+    --coral:       #F25C2A;
+    --coral-light: #FF7A4F;
+    --coral-dim:   rgba(242,92,42,0.10);
+    --coral-mid:   rgba(242,92,42,0.25);
+
+    --red:         #E5392F;     /* Reportar incidente */
+    --red-dim:     rgba(229,57,47,0.10);
+
+    --teal:        #27BCC7;
+    --teal-dim:    rgba(39,188,199,0.10);
+    --teal-mid:    rgba(39,188,199,0.25);
+
+    --gold:        #F4A300;
+    --green:       #1F8A4C;
+    --green-mid:   #2BBC6A;
+
+    /* Surfaces */
+    --bg:          #FFFFFF;
+    --surface:     #F7F9FC;
+    --surface-2:   #EFF2F8;
+    --border:      #E2E8F0;
+    --border-mid:  #CBD5E0;
+
+    /* Text */
+    --text:        #0B1733;
+    --text-mid:    #475569;
+    --text-muted:  #64748B;
+    --text-dim:    #94A3B8;
+
+    /* Spacing & radii */
+    --radius:      14px;
+    --radius-sm:   10px;
+    --font:        'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono:        'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ===== HEADER (sticky, SOC-CSIRT style) ===== */
+  .top-bar {
+    background: var(--navy-deep);
+    color: white;
+    font-size: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .top-bar-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .top-bar-left {
+    display: flex; gap: 18px; align-items: center;
+    color: rgba(255,255,255,0.7);
+  }
+  .top-bar-left .tlitem {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .top-bar-left .tlitem svg { width: 12px; height: 12px; opacity: 0.6; }
+  .top-bar-right {
+    color: rgba(255,255,255,0.7);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .top-bar-right strong { color: white; }
+
+  .header {
+    background: var(--navy);
+    color: white;
+    border-bottom: 3px solid var(--coral);
+    position: sticky; top: 0;
+    z-index: 50;
+  }
+  .header-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .brand-mark {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--coral), var(--coral-light));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px rgba(242,92,42,0.35);
+    flex-shrink: 0;
+  }
+  .brand-mark svg { width: 24px; height: 24px; }
+  .brand-text { line-height: 1.15; }
+  .brand-text h1 {
+    font-size: 17px; font-weight: 700;
+    letter-spacing: -0.02em;
+    color: white;
+  }
+  .brand-text p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.65);
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+  }
+  .nav {
+    display: flex; gap: 4px;
+    margin-left: auto;
+    margin-right: 16px;
+  }
+  .nav a {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.8);
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all .15s;
+  }
+  .nav a:hover { background: rgba(255,255,255,0.08); color: white; }
+  .nav a.active {
+    background: rgba(255,255,255,0.08);
+    color: white;
+  }
+  @media(max-width:1080px){
+    .nav { display: none; }
+  }
+  .header-cta {
+    background: var(--red);
+    color: white !important;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 999px;
+    transition: all .18s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 4px 14px rgba(229,57,47,0.32);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .header-cta:hover {
+    background: #CC2920;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(229,57,47,0.42);
+  }
+  .header-cta::before {
+    content: '';
+    width: 7px; height: 7px;
+    background: white;
+    border-radius: 50%;
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(255,255,255,0); }
+  }
+
+  /* ===== BREADCRUMB ===== */
+  .breadcrumb {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .breadcrumb-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 28px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .breadcrumb a:hover { color: var(--coral); }
+  .breadcrumb .sep { color: var(--text-dim); }
+
+  /* ===== HERO ===== */
+  .hero {
+    background: var(--navy);
+    background-image:
+      radial-gradient(at 15% 20%, rgba(242,92,42,0.10) 0px, transparent 50%),
+      radial-gradient(at 85% 80%, rgba(39,188,199,0.08) 0px, transparent 50%);
+    color: white;
+    padding: 72px 28px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 36px 36px;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+  .hero-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--coral);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    background: var(--coral-dim);
+    border: 1px solid var(--coral-mid);
+    border-radius: 999px;
+    margin-bottom: 20px;
+  }
+  .hero h2 {
+    font-size: clamp(30px, 5vw, 50px);
+    font-weight: 300;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    color: white;
+  }
+  .hero h2 em {
+    font-style: normal;
+    font-weight: 700;
+    background: linear-gradient(120deg, var(--coral) 0%, var(--coral-light) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero p {
+    font-size: 17px;
+    color: rgba(255,255,255,0.75);
+    max-width: 660px;
+    margin: 0 auto 28px;
+    line-height: 1.55;
+  }
+  .hero-meta {
+    display: inline-flex;
+    gap: 22px;
+    padding: 10px 22px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(255,255,255,0.65);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .hero-meta .dot {
+    width: 6px; height: 6px;
+    background: var(--green-mid);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--green-mid);
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 56px 28px 80px;
+  }
+
+  /* ===== STEP LABEL ===== */
+  .step-label {
+    font-size: 11px; font-family: var(--mono);
+    color: var(--coral);
+    text-transform: uppercase; letter-spacing: 0.14em;
+    margin-bottom: 12px;
+    display: inline-flex; align-items: center; gap: 10px;
+    font-weight: 500;
+  }
+  .step-label .step-num {
+    width: 22px; height: 22px;
+    background: var(--coral);
+    color: white;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: 11px;
+    font-family: var(--font);
+    font-weight: 600;
+  }
+
+  .section-title {
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .section-title strong { color: var(--coral); }
+  .section-sub {
+    font-size: 15px;
+    color: var(--text-mid);
+    line-height: 1.55;
+    margin-bottom: 32px;
+    max-width: 680px;
+  }
+
+  /* ===== SCENARIO TABS ===== */
+  .scenario-tabs {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 36px;
+  }
+  .stab {
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 18px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: white;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all .18s;
+  }
+  .stab:hover {
+    border-color: var(--coral-mid);
+    color: var(--text);
+  }
+  .stab.active {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: white;
+  }
+
+  /* ===== TWO-COL LAYOUT ===== */
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 64px;
+  }
+  @media(max-width:900px){ .cols { grid-template-columns: 1fr; } }
+
+  /* ===== PANELS ===== */
+  .panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: 0 1px 3px rgba(11,23,51,0.04);
+  }
+  .panel.dark {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy-mid);
+    box-shadow: 0 8px 32px rgba(11,23,51,0.18);
+  }
+  .panel-title {
+    font-size: 11px; font-family: var(--mono);
+    color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.12em;
+    margin-bottom: 22px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-weight: 500;
+  }
+  .panel.dark .panel-title {
+    color: rgba(255,255,255,0.5);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 14px;
+  }
+
+  /* ===== SLIDERS ===== */
+  .slider-row { margin-bottom: 22px; }
+  .slider-row:last-child { margin-bottom: 0; }
+  .slider-top {
+    display: flex; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .slider-top label {
+    font-size: 13.5px;
+    color: var(--text-mid);
+    font-weight: 500;
+  }
+  .slider-top .sval {
+    font-size: 14px; font-family: var(--mono);
+    color: var(--coral); font-weight: 600;
+  }
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%; height: 4px;
+    background: var(--border);
+    border-radius: 4px; outline: none; cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--coral);
+    cursor: pointer;
+    transition: transform .15s;
+    box-shadow: 0 0 0 4px var(--coral-dim);
+    border: 2px solid white;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  input[type=range]::-moz-range-thumb {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--coral);
+    cursor: pointer;
+    box-shadow: 0 0 0 4px var(--coral-dim);
+    border: 2px solid white;
+  }
+
+  /* ===== BREAKDOWN ===== */
+  .breakdown {
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px dashed var(--border);
+  }
+  .breakdown-title {
+    font-size: 11px; font-family: var(--mono);
+    color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.12em;
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+  .brow {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .brow:last-child { border-bottom: none; }
+  .brow .blabel { color: var(--text-mid); }
+  .brow .bamount {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .brow.total-row {
+    padding-top: 14px; margin-top: 6px;
+    border-top: 2px solid var(--text);
+  }
+  .brow.total-row .blabel { font-weight: 700; color: var(--text); }
+  .brow.total-row .bamount {
+    font-size: 16px; font-weight: 700;
+    color: var(--red);
+  }
+
+  /* ===== METRICS GRID (right panel) ===== */
+  .metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .metric {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+  }
+  .metric .mlabel {
+    font-size: 10px; font-family: var(--mono);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .metric .mval {
+    font-size: 24px; font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+    color: white;
+    font-family: var(--mono);
+  }
+  .metric .msub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+  }
+  .metric.danger {
+    background: var(--red-dim);
+    border-color: rgba(229,57,47,0.3);
+  }
+  .metric.danger .mval { color: #FF8076; }
+  .metric.highlight {
+    background: var(--coral-dim);
+    border-color: var(--coral-mid);
+  }
+  .metric.highlight .mval { color: var(--coral-light); }
+  .metric.success {
+    background: rgba(43,188,106,0.10);
+    border-color: rgba(43,188,106,0.3);
+  }
+  .metric.success .mval { color: var(--green-mid); }
+
+  /* ===== BAR COMPARE ===== */
+  .compare-section { margin-top: 26px; }
+  .compare-title {
+    font-size: 11px; font-family: var(--mono);
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .bar-item { margin-bottom: 16px; }
+  .bar-item:last-child { margin-bottom: 0; }
+  .bar-meta {
+    display: flex; justify-content: space-between;
+    margin-bottom: 7px; font-size: 12px;
+  }
+  .bar-meta .bname { color: rgba(255,255,255,0.7); }
+  .bar-meta .bamt {
+    font-family: var(--mono); font-weight: 600;
+    color: white;
+  }
+  .bar-track {
+    height: 10px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width .6s cubic-bezier(.4,0,.2,1);
+  }
+  .bar-fill.red { background: linear-gradient(90deg, #E5392F, #FF7770); }
+  .bar-fill.coral { background: linear-gradient(90deg, var(--coral), var(--coral-light)); }
+  .bar-fill.teal { background: linear-gradient(90deg, var(--teal), #4DD8E2); }
+
+  /* ===== VERDICT BOX ===== */
+  .verdict {
+    margin-top: 26px;
+    padding: 22px 24px;
+    border-radius: var(--radius);
+    border: 1px solid;
+  }
+  .verdict.positive {
+    background: linear-gradient(135deg, var(--coral-dim), rgba(244,163,0,0.05));
+    border-color: var(--coral-mid);
+  }
+  .verdict.neutral {
+    background: var(--teal-dim);
+    border-color: var(--teal-mid);
+  }
+  .verdict-tag {
+    display: inline-block;
+    font-size: 10px; font-family: var(--mono);
+    text-transform: uppercase; letter-spacing: 0.14em;
+    padding: 4px 11px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .verdict.positive .verdict-tag {
+    background: var(--coral); color: white;
+  }
+  .verdict.neutral .verdict-tag {
+    background: var(--teal); color: var(--navy-dark);
+  }
+  .verdict h3 {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+    color: white;
+  }
+  .verdict p {
+    font-size: 13.5px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.6;
+  }
+
+  /* ===== PACKAGES SECTION ===== */
+  .pkg-section { margin: 32px 0 24px; }
+
+  /* maturity track */
+  .maturity-track {
+    margin: 0 auto 48px;
+    max-width: 920px;
+  }
+  .maturity-stops {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .maturity-stop {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: all .3s;
+  }
+  .maturity-stop.active {
+    color: var(--coral);
+    font-weight: 700;
+  }
+  .maturity-bar {
+    height: 6px;
+    background: var(--surface-2);
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+  }
+  .maturity-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--coral) 0%, var(--gold) 50%, var(--teal) 100%);
+    border-radius: 3px;
+    transition: width .6s cubic-bezier(.4,0,.2,1);
+  }
+
+  .pkg-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+  @media(max-width:1080px){ .pkg-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media(max-width:560px){ .pkg-grid { grid-template-columns: 1fr; } }
+
+  .pkg-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px 22px;
+    position: relative;
+    transition: all .25s;
+    cursor: pointer;
+    display: flex; flex-direction: column;
+    box-shadow: 0 1px 3px rgba(11,23,51,0.04);
+  }
+  .pkg-card:hover {
+    border-color: var(--border-mid);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(11,23,51,0.10);
+  }
+  .pkg-card.recommended {
+    border-color: var(--coral);
+    border-width: 2px;
+    background: linear-gradient(180deg, rgba(242,92,42,0.04), white 70%);
+    box-shadow: 0 12px 36px rgba(242,92,42,0.18);
+  }
+
+  .pkg-badge {
+    position: absolute;
+    top: -12px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--coral);
+    color: white;
+    font-size: 10px; font-family: var(--mono);
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    box-shadow: 0 4px 12px rgba(242,92,42,0.4);
+    white-space: nowrap;
+  }
+  .pkg-tier {
+    font-size: 10px; font-family: var(--mono);
+    color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.12em;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .pkg-name {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .pkg-maturity {
+    font-size: 12px;
+    color: var(--teal);
+    margin-bottom: 18px;
+    font-weight: 600;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .pkg-price {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    line-height: 1;
+    font-family: var(--mono);
+  }
+  .pkg-price-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    margin-bottom: 20px;
+    font-family: var(--mono);
+  }
+  .pkg-desc {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.55;
+    margin-bottom: 20px;
+    flex: 1;
+  }
+  .pkg-feats {
+    list-style: none;
+    margin-bottom: 22px;
+  }
+  .pkg-feats li {
+    font-size: 12.5px;
+    padding: 6px 0;
+    display: flex; gap: 9px;
+    line-height: 1.45;
+    color: var(--text-mid);
+    border-bottom: 1px dashed var(--border);
+  }
+  .pkg-feats li:last-child { border-bottom: none; }
+  .pkg-feats li.has::before {
+    content: '✓';
+    color: var(--green-mid);
+    font-weight: 700;
+    flex-shrink: 0;
+    width: 14px;
+  }
+  .pkg-feats li.lacks {
+    color: var(--text-dim);
+  }
+  .pkg-feats li.lacks::before {
+    content: '×';
+    color: var(--text-dim);
+    flex-shrink: 0;
+    width: 14px;
+    font-weight: 700;
+  }
+  .pkg-cta {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13.5px;
+    font-weight: 600;
+    transition: all .15s;
+    border: 1px solid var(--border);
+    margin-top: auto;
+  }
+  .pkg-cta:hover {
+    background: var(--surface-2);
+    border-color: var(--border-mid);
+  }
+  .pkg-card.recommended .pkg-cta {
+    background: var(--coral);
+    color: white;
+    border-color: var(--coral);
+  }
+  .pkg-card.recommended .pkg-cta:hover {
+    background: #DC4F1F;
+  }
+
+  /* ===== TRUST BAND (membership badges) ===== */
+  .trust-band {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 28px;
+    margin: 56px 0 0;
+  }
+  .trust-band-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .trust-title {
+    font-size: 11px; font-family: var(--mono);
+    color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.14em;
+    margin-bottom: 22px;
+    font-weight: 500;
+  }
+  .trust-logos {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .trust-logo {
+    padding: 10px 20px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-mid);
+    font-family: var(--mono);
+    letter-spacing: 0.02em;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .trust-logo .logo-emblem {
+    width: 18px; height: 18px;
+    background: var(--coral);
+    border-radius: 4px;
+  }
+  .trust-logo .logo-emblem.teal { background: var(--teal); }
+  .trust-logo .logo-emblem.navy { background: var(--navy); }
+  .trust-logo .logo-emblem.gold { background: var(--gold); }
+
+  /* ===== PROOF SECTION ===== */
+  .proof-section {
+    background: var(--navy);
+    color: white;
+    padding: 56px 28px;
+    margin: 0;
+  }
+  .proof-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  .proof-head {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .proof-tag {
+    font-size: 11px; font-family: var(--mono);
+    color: var(--coral);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  .proof-head h3 {
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: white;
+  }
+  .proof-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  @media(max-width:720px){ .proof-grid { grid-template-columns: repeat(2, 1fr); } }
+  .proof-item {
+    text-align: center;
+    padding: 24px 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+  }
+  .proof-item .pnum {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--coral);
+    font-family: var(--mono);
+    margin-bottom: 6px;
+    line-height: 1;
+  }
+  .proof-item .plab {
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.45;
+  }
+
+  /* ===== CTA SECTION ===== */
+  .cta-section {
+    background: linear-gradient(135deg, var(--coral) 0%, var(--coral-light) 100%);
+    color: white;
+    padding: 64px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 50%, rgba(255,255,255,0.12) 0px, transparent 50%),
+      radial-gradient(circle at 80% 50%, rgba(255,255,255,0.08) 0px, transparent 50%);
+    pointer-events: none;
+  }
+  .cta-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .cta-section h3 {
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 14px;
+    color: white;
+  }
+  .cta-section p {
+    font-size: 16px;
+    color: rgba(255,255,255,0.88);
+    margin-bottom: 28px;
+    line-height: 1.55;
+  }
+  .cta-btn {
+    display: inline-block;
+    padding: 15px 38px;
+    background: white;
+    color: var(--coral) !important;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    transition: all .2s;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  }
+  .cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  }
+  .cta-contacts {
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .cta-contacts a {
+    font-size: 13px;
+    font-family: var(--mono);
+    color: rgba(255,255,255,0.85);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: color .15s;
+  }
+  .cta-contacts a:hover { color: white; }
+  .cta-contacts svg { width: 14px; height: 14px; opacity: 0.7; }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    background: var(--navy-dark);
+    color: rgba(255,255,255,0.7);
+    padding: 56px 28px 24px;
+  }
+  .footer-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  .footer-cols {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 36px;
+    padding-bottom: 36px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  @media(max-width:880px){
+    .footer-cols { grid-template-columns: 1fr 1fr; }
+  }
+  @media(max-width:520px){
+    .footer-cols { grid-template-columns: 1fr; }
+  }
+  .footer-brand .brand-text h1 { color: white; }
+  .footer-brand p {
+    margin-top: 16px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.55;
+    max-width: 320px;
+  }
+  .footer-col h4 {
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--coral);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col li {
+    padding: 5px 0;
+    font-size: 13px;
+  }
+  .footer-col a {
+    color: rgba(255,255,255,0.7);
+    transition: color .15s;
+  }
+  .footer-col a:hover { color: var(--coral); }
+  .footer-cert {
+    margin-top: 22px;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    display: inline-flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .footer-cert .cert-badge {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--gold), #E89500);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--navy-deep);
+    text-align: center;
+    line-height: 1.1;
+    flex-shrink: 0;
+  }
+  .footer-cert-text {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .footer-cert-text strong {
+    color: white;
+    display: block;
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
+  .footer-bottom {
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+  }
+  .footer-bottom .powered { color: var(--coral); font-weight: 600; }
+
+  /* ===== SECTION SPACER ===== */
+  .section-divider {
+    text-align: center;
+    margin: 24px 0;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    position: relative;
+  }
+  .section-divider::before,
+  .section-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 80px;
+    height: 1px;
+    background: var(--border);
+  }
+  .section-divider::before { right: calc(50% + 80px); }
+  .section-divider::after { left: calc(50% + 80px); }
+
+  /* ===== DISCLAIMER ===== */
+  .disclaimer {
+    margin: 32px auto 0;
+    max-width: 720px;
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    padding: 16px 22px;
+    background: var(--surface);
+    border-left: 3px solid var(--teal);
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <div class="top-bar-left">
+      <span class="tlitem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+        TLP: CLEAR
+      </span>
+      <span class="tlitem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Lun–Vie · 08:00–16:30
+      </span>
+      <span class="tlitem">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:13px;height:13px"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.3-.4.1-.2 0-.3 0-.5s-.7-1.6-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.3 5.2 4.6.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.2-.3-.3-.6-.4zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4C8.7 21.5 10.3 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
+        WhatsApp SOC: +593 97 958 9601
+      </span>
+    </div>
+    <div class="top-bar-right">
+      <strong>socsirt.cedia.edu.ec</strong> · ISO/IEC 27001:2022
+    </div>
+  </div>
+</div>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="header-inner">
+    <a href="#" class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L3 6v6c0 5.5 3.8 10.6 9 12 5.2-1.4 9-6.5 9-12V6l-9-4z" stroke="white" stroke-width="2" stroke-linejoin="round" fill="rgba(255,255,255,0.15)"/>
+          <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>SOC-CSIRT CEDIA</h1>
+        <p>Equipo de Respuesta a Incidentes de Seguridad</p>
+      </div>
+    </a>
+    <nav class="nav">
+      <a href="https://socsirt.cedia.edu.ec/" target="_blank">Inicio</a>
+      <a href="https://socsirt.cedia.edu.ec/acerca-de/" target="_blank">Acerca de</a>
+      <a href="https://socsirt.cedia.edu.ec/soluciones/" target="_blank">Soluciones</a>
+      <a href="https://socsirt.cedia.edu.ec/recursos/" target="_blank" class="active">Recursos</a>
+      <a href="https://socsirt.cedia.edu.ec/tutoriales/" target="_blank">Tutoriales</a>
+      <a href="https://socsirt.cedia.edu.ec/blog/" target="_blank">Noticias</a>
+      <a href="https://socsirt.cedia.edu.ec/contacto/" target="_blank">Contacto</a>
+    </nav>
+    <a href="https://socsirt.cedia.edu.ec/reportar-incidente/" target="_blank" class="header-cta">
+      Reportar incidente
+    </a>
+  </div>
+</header>
+
+<!-- ===== BREADCRUMB ===== -->
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="https://socsirt.cedia.edu.ec/" target="_blank">Inicio</a>
+    <span class="sep">›</span>
+    <a href="https://socsirt.cedia.edu.ec/recursos/" target="_blank">Recursos</a>
+    <span class="sep">›</span>
+    <span style="color:var(--text)">Calculadora de Riesgo y ROI</span>
+  </div>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-inner">
+    <span class="hero-tag">Herramienta de evaluación · Modelo DALIA</span>
+    <h2>¿Cuánto le cuesta a tu organización<br><em>no protegerse?</em></h2>
+    <p>Calcula el costo real de un incidente de ciberseguridad y descubre cuál de los cuatro paquetes CEDIA, alineados al modelo DALIA, ofrece el mejor ROI para tu nivel de madurez.</p>
+    <div class="hero-meta">
+      <span><span class="dot"></span>Datos PVP 2026</span>
+      <span>·</span>
+      <span>4 niveles de madurez</span>
+      <span>·</span>
+      <span>Cálculo en tiempo real</span>
+    </div>
+  </div>
+</section>
+
+<main class="main">
+
+  <!-- PASO 1 -->
+  <p class="step-label"><span class="step-num">1</span>Define el perfil de tu organización</p>
+  <h3 class="section-title">Empezamos por <strong>conocerte</strong>.</h3>
+  <p class="section-sub">Selecciona el tamaño de tu organización y ajusta los parámetros operativos. Nuestro motor calculará tu costo potencial de incidente y te recomendará el paquete CEDIA más adecuado.</p>
+
+  <div class="scenario-tabs">
+    <button class="stab active" onclick="loadScenario('pequena',this)">Pequeña — hasta 20 empleados</button>
+    <button class="stab" onclick="loadScenario('mediana',this)">Mediana — 20 a 100</button>
+    <button class="stab" onclick="loadScenario('grande',this)">Mediana–grande — 100 a 500</button>
+    <button class="stab" onclick="loadScenario('corp',this)">Corporativa — más de 500</button>
+  </div>
+
+  <div class="cols">
+
+    <!-- LEFT: INPUTS -->
+    <div class="panel">
+      <p class="panel-title">Parámetros operativos <span style="color:var(--text-muted);text-transform:none;letter-spacing:0;font-size:10px">ajusta los valores</span></p>
+
+      <div class="slider-row">
+        <div class="slider-top">
+          <label>Ingresos mensuales</label>
+          <span class="sval" id="o_ingresos">$30.000</span>
+        </div>
+        <input type="range" id="s_ingresos" min="5000" max="1000000" step="5000" value="30000" oninput="calc()">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-top">
+          <label>Días de interrupción operativa</label>
+          <span class="sval" id="o_dias">5 días</span>
+        </div>
+        <input type="range" id="s_dias" min="1" max="30" step="1" value="5" oninput="calc()">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-top">
+          <label>Probabilidad de incidente / año</label>
+          <span class="sval" id="o_prob">30%</span>
+        </div>
+        <input type="range" id="s_prob" min="5" max="80" step="5" value="30" oninput="calc()">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-top">
+          <label>Empleados afectados</label>
+          <span class="sval" id="o_empleados">10 empleados</span>
+        </div>
+        <input type="range" id="s_empleados" min="2" max="500" step="1" value="10" oninput="calc()">
+      </div>
+
+      <div class="breakdown">
+        <p class="breakdown-title">Desglose del costo del incidente</p>
+        <div id="breakdown"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: RESULTS (DARK PANEL — SOC consola feel) -->
+    <div class="panel dark">
+      <p class="panel-title">Análisis SOC · ROI <span style="color:rgba(255,255,255,0.4);text-transform:none;letter-spacing:0;font-size:10px">en tiempo real</span></p>
+
+      <div class="metrics">
+        <div class="metric danger">
+          <p class="mlabel">Costo del incidente</p>
+          <p class="mval" id="m_incidente">—</p>
+          <p class="msub">pérdida total estimada</p>
+        </div>
+        <div class="metric">
+          <p class="mlabel">Pérdida esperada</p>
+          <p class="mval" id="m_esperada">—</p>
+          <p class="msub">ajustada por probabilidad</p>
+        </div>
+        <div class="metric highlight">
+          <p class="mlabel">Paquete recomendado</p>
+          <p class="mval" id="m_paquete">—</p>
+          <p class="msub" id="m_paquete_price">—</p>
+        </div>
+        <div class="metric success">
+          <p class="mlabel">ROI de protección</p>
+          <p class="mval" id="m_roi">—</p>
+          <p class="msub">ahorro neto / inversión</p>
+        </div>
+      </div>
+
+      <div class="compare-section">
+        <p class="compare-title">Comparación directa</p>
+        <div class="bar-item">
+          <div class="bar-meta">
+            <span class="bname">Costo del incidente (sin protección)</span>
+            <span class="bamt" id="bar_lbl_inc">—</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill red" id="bar_inc" style="width:80%"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-meta">
+            <span class="bname">Pérdida esperada (con probabilidad)</span>
+            <span class="bamt" id="bar_lbl_esp">—</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill coral" id="bar_esp" style="width:50%"></div></div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-meta">
+            <span class="bname" id="bar_lbl_pkg_name">Paquete CEDIA recomendado</span>
+            <span class="bamt" id="bar_lbl_ced">—</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill teal" id="bar_ced" style="width:20%"></div></div>
+        </div>
+      </div>
+
+      <div class="verdict positive" id="verdict_box"></div>
+    </div>
+
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="pkg-section">
+    <p class="step-label"><span class="step-num">2</span>Elige el nivel de madurez DALIA</p>
+    <h3 class="section-title">Cuatro paquetes. Una misma <strong>arquitectura</strong>.</h3>
+    <p class="section-sub">Desde la primera evaluación de madurez hasta la operación estratégica completa con cooperación internacional. Cada nivel construye sobre el anterior.</p>
+
+    <div class="maturity-track">
+      <div class="maturity-stops">
+        <div class="maturity-stop" id="mat_0">01 · Madurez 0</div>
+        <div class="maturity-stop" id="mat_1">02 · Inicial</div>
+        <div class="maturity-stop" id="mat_2">03 · Media</div>
+        <div class="maturity-stop" id="mat_3">04 · Avanzada</div>
+      </div>
+      <div class="maturity-bar"><div class="maturity-fill" id="maturity_fill" style="width:25%"></div></div>
+    </div>
+
+    <div class="pkg-grid" id="pkg_grid"></div>
+
+    <p class="disclaimer">
+      Los valores son estimaciones referenciales basadas en promedios del sector en Ecuador.
+      El costo real puede variar según el tipo de incidente, industria y tamaño de la organización.
+      Precios PVP en USD, vigentes 2026.
+    </p>
+  </div>
+
+</main>
+
+<!-- ===== TRUST BAND ===== -->
+<section class="trust-band">
+  <div class="trust-band-inner">
+    <p class="trust-title">Membresías y partners institucionales</p>
+    <div class="trust-logos">
+      <div class="trust-logo"><span class="logo-emblem"></span>FIRST</div>
+      <div class="trust-logo"><span class="logo-emblem teal"></span>Trusted Introducer</div>
+      <div class="trust-logo"><span class="logo-emblem navy"></span>Shadowserver</div>
+      <div class="trust-logo"><span class="logo-emblem teal"></span>LACNIC CSIRT</div>
+      <div class="trust-logo"><span class="logo-emblem gold"></span>CSIRTAmericas (OEA)</div>
+      <div class="trust-logo"><span class="logo-emblem"></span>GÉANT</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROOF ===== -->
+<section class="proof-section">
+  <div class="proof-inner">
+    <div class="proof-head">
+      <p class="proof-tag">Resultados verificables</p>
+      <h3>El modelo DALIA en cifras</h3>
+    </div>
+    <div class="proof-grid">
+      <div class="proof-item">
+        <p class="pnum">91</p>
+        <p class="plab">instituciones de educación superior articuladas</p>
+      </div>
+      <div class="proof-item">
+        <p class="pnum">213K</p>
+        <p class="plab">cuentas comprometidas remediadas</p>
+      </div>
+      <div class="proof-item">
+        <p class="pnum">58→78</p>
+        <p class="plab">+20 puntos de madurez en 18 meses</p>
+      </div>
+      <div class="proof-item">
+        <p class="pnum">1.er</p>
+        <p class="plab">lugar CTF · Cyberdrill UIT Américas 2026</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h3>¿Listo para empezar el diagnóstico?</h3>
+    <p>El primer paso es siempre el mismo: una evaluación de madurez sin costo, con el equipo SOC-CSIRT de CEDIA.</p>
+    <a href="https://socsirt.cedia.edu.ec/reportar-incidente/" target="_blank" class="cta-btn">Agendar diagnóstico gratuito</a>
+    <div class="cta-contacts">
+      <a href="mailto:soc_csirt@cedia.org.ec">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        soc_csirt@cedia.org.ec
+      </a>
+      <a href="mailto:csirt@cedia.org.ec">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        csirt@cedia.org.ec
+      </a>
+      <a href="https://wa.me/593979589601" target="_blank">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.3-.4.1-.2 0-.3 0-.5s-.7-1.6-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.3 5.2 4.6.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.2-.3-.3-.6-.4zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.4 1.3 4.9L2 22l5.3-1.4C8.7 21.5 10.3 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>
+        WhatsApp: +593 97 958 9601
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-cols">
+      <div class="footer-brand">
+        <div class="brand">
+          <div class="brand-mark">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L3 6v6c0 5.5 3.8 10.6 9 12 5.2-1.4 9-6.5 9-12V6l-9-4z" stroke="white" stroke-width="2" stroke-linejoin="round" fill="rgba(255,255,255,0.15)"/>
+              <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1>SOC-CSIRT CEDIA</h1>
+            <p style="color:rgba(255,255,255,0.5)">Equipo de Respuesta a Incidentes</p>
+          </div>
+        </div>
+        <p>El SOC-CSIRT CEDIA es un equipo de respuesta a incidentes de seguridad que recibe, revisa y responde a reportes desde y hacia las redes de sus instituciones miembros.</p>
+        <div class="footer-cert">
+          <div class="cert-badge">ISO<br>27001</div>
+          <div class="footer-cert-text">
+            <strong>ISO/IEC 27001:2022</strong>
+            Sistema de Gestión de Seguridad de la Información certificado por BVCER
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>SOC-CSIRT CEDIA</h4>
+        <ul>
+          <li><a href="https://socsirt.cedia.edu.ec/acerca-de/" target="_blank">Acerca de</a></li>
+          <li><a href="https://socsirt.cedia.edu.ec/servicios/" target="_blank">Servicios</a></li>
+          <li><a href="https://socsirt.cedia.edu.ec/blog/" target="_blank">Blog</a></li>
+          <li><a href="https://socsirt.cedia.edu.ec/tutoriales/" target="_blank">Tutoriales</a></li>
+          <li><a href="https://socsirt.cedia.edu.ec/incidentes-de-seguridad/" target="_blank">Incidentes</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Recursos</h4>
+        <ul>
+          <li><a href="https://socsirt.cedia.edu.ec/informacion-general/" target="_blank">Información general</a></li>
+          <li><a href="https://socsirt.cedia.edu.ec/blog#webinars" target="_blank">Webinars</a></li>
+          <li><a href="https://socsirt.cedia.edu.ec/recursos/" target="_blank">Recursos CSIRT</a></li>
+          <li><a href="https://socsirt.cedia.edu.ec/dimensionador-soc/" target="_blank">Dimensionador SOC</a></li>
+          <li><a href="https://csirt.ec/" target="_blank">CSIRT.EC</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contacto</h4>
+        <ul>
+          <li><a href="mailto:soc_csirt@cedia.org.ec"><strong style="color:rgba(255,255,255,0.9)">SOC:</strong> soc_csirt@cedia.org.ec</a></li>
+          <li><a href="mailto:csirt@cedia.org.ec"><strong style="color:rgba(255,255,255,0.9)">CSIRT:</strong> csirt@cedia.org.ec</a></li>
+          <li><a href="https://wa.me/593979589601" target="_blank"><strong style="color:rgba(255,255,255,0.9)">WhatsApp SOC:</strong> +593 97 958 9601</a></li>
+          <li><a href="tel:+59374079300">Telf. general: +593 7 407 9300</a></li>
+          <li style="color:rgba(255,255,255,0.6)">Lun–Vie · 8:00–16:30</li>
+          <li><a href="https://twitter.com/CsirtCEDIA" target="_blank">Twitter @CsirtCEDIA</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>© 2026 SOC-CSIRT CEDIA · Red Nacional de Investigación y Educación</div>
+      <div>Powered by <span class="powered">CEDIA</span></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const PACKAGES = [
+  {
+    key:'infima', name:'Ínfima', tier:'Punto de partida', maturity:'Madurez 0',
+    price:9969.06,
+    desc:'Cobertura esencial para organizaciones que apenas inician su camino en ciberseguridad y necesitan visibilidad básica.',
+    features:[
+      { t:'Evaluación de Nivel de Madurez', has:true },
+      { t:'Vigilancia (VOC) básica', has:true },
+      { t:'Análisis de Vulnerabilidades', has:true },
+      { t:'EASM · superficie de ataque externa', has:true },
+      { t:'Protección de Marca', has:true },
+      { t:'SOC 24/7 · monitoreo básico', has:true },
+      { t:'Respuesta a Incidentes (CSIRT)', has:true },
+      { t:'Reportes ejecutivos mensuales', has:true },
+      { t:'SGSI/EGSI · gobernanza básica', has:true },
+      { t:'Hardening dedicado', has:false },
+      { t:'Threat Intelligence avanzado', has:false },
+      { t:'Pentesting / Hacking Ético', has:false }
+    ]
+  },
+  {
+    key:'base', name:'Base', tier:'Recomendado PyMEs', maturity:'Madurez inicial',
+    price:17125.56,
+    desc:'El estándar para PyMEs con operación crítica que necesitan continuidad, cumplimiento y visibilidad ampliada.',
+    features:[
+      { t:'Todo lo de Ínfima', has:true },
+      { t:'VOC · vigilancia ampliada', has:true },
+      { t:'Vulnerabilidades · barrido completo', has:true },
+      { t:'SOC 24/7 ampliado', has:true },
+      { t:'CSIRT · respuesta ampliada', has:true },
+      { t:'Reportes ejecutivos ampliados', has:true },
+      { t:'SGSI/EGSI ampliada', has:true },
+      { t:'PDP · protección de datos (LOPDP)', has:true },
+      { t:'Laboratorios CTF', has:false },
+      { t:'Threat Intelligence dedicado', has:false },
+      { t:'Pentesting / Hacking Ético', has:false },
+      { t:'Diagnóstico de Arquitectura', has:false }
+    ]
+  },
+  {
+    key:'avanzado', name:'Avanzado', tier:'Empresas en crecimiento', maturity:'Madurez media',
+    price:43521.74,
+    desc:'Para organizaciones con operaciones críticas, datos sensibles y exigencias regulatorias que requieren detección y respuesta proactiva.',
+    features:[
+      { t:'Todo lo de Base', has:true },
+      { t:'SOC 24/7 · operación completa', has:true },
+      { t:'CSIRT · respuesta extendida', has:true },
+      { t:'Laboratorios y ejercicios CTF', has:true },
+      { t:'Threat Intelligence incluido', has:true },
+      { t:'Pentesting / Hacking Ético incluido', has:true },
+      { t:'Gobernanza completa (SGSI + PDP)', has:true },
+      { t:'EASM · monitoreo continuo', has:true },
+      { t:'Hardening dedicado', has:false },
+      { t:'Diagnóstico de Arquitectura', has:false },
+      { t:'Cooperación internacional', has:false }
+    ]
+  },
+  {
+    key:'estrategico', name:'Estratégico', tier:'Operación crítica', maturity:'Madurez avanzada',
+    price:113906.19,
+    desc:'La operación de seguridad completa para organizaciones con misión crítica, alta exposición regulatoria y necesidad de cooperación internacional.',
+    features:[
+      { t:'Todo lo de Avanzado', has:true },
+      { t:'Hardening · endurecimiento dedicado', has:true },
+      { t:'Threat Intelligence avanzado', has:true },
+      { t:'Cooperación internacional', has:true },
+      { t:'Diagnóstico de Arquitectura institucional', has:true },
+      { t:'Pentesting dedicado y recurrente', has:true },
+      { t:'SOC 24/7 · cobertura enterprise', has:true },
+      { t:'CSIRT · respuesta enterprise', has:true },
+      { t:'Gobernanza completa con LOPDP', has:true },
+      { t:'Reportes ejecutivos estratégicos', has:true },
+      { t:'CTF · entrenamiento avanzado', has:true }
+    ]
+  }
+];
+
+const scenarios = {
+  pequena: { ingresos: 15000,  dias: 3,  prob: 25, empleados: 5   },
+  mediana: { ingresos: 60000,  dias: 7,  prob: 35, empleados: 25  },
+  grande:  { ingresos: 200000, dias: 12, prob: 45, empleados: 120 },
+  corp:    { ingresos: 600000, dias: 18, prob: 55, empleados: 350 }
+};
+
+function fmt(n)  { return '$' + Math.round(n).toLocaleString('es-EC'); }
+
+function loadScenario(key, btn) {
+  document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const s = scenarios[key];
+  document.getElementById('s_ingresos').value  = s.ingresos;
+  document.getElementById('s_dias').value      = s.dias;
+  document.getElementById('s_prob').value      = s.prob;
+  document.getElementById('s_empleados').value = s.empleados;
+  calc();
+}
+
+function recommend(esperada, ingresos, empleados) {
+  let idx;
+  if      (esperada < 14000)  idx = 0;
+  else if (esperada < 50000)  idx = 1;
+  else if (esperada < 150000) idx = 2;
+  else                         idx = 3;
+
+  if (empleados >= 300 || ingresos >= 400000) idx = Math.max(idx, 3);
+  else if (empleados >= 100 || ingresos >= 150000) idx = Math.max(idx, 2);
+  else if (empleados >= 20  || ingresos >= 50000)  idx = Math.max(idx, 1);
+
+  return idx;
+}
+
+function renderPackages(recommendedIdx) {
+  const grid = document.getElementById('pkg_grid');
+  grid.innerHTML = PACKAGES.map((pkg, i) => {
+    const isRec = i === recommendedIdx;
+    return `
+      <div class="pkg-card ${isRec ? 'recommended' : ''}">
+        ${isRec ? '<span class="pkg-badge">Recomendado para ti</span>' : ''}
+        <p class="pkg-tier">0${i+1} · ${pkg.tier}</p>
+        <p class="pkg-name">${pkg.name}</p>
+        <p class="pkg-maturity">${pkg.maturity}</p>
+        <p class="pkg-price">${fmt(pkg.price)}</p>
+        <p class="pkg-price-sub">USD anual · ${fmt(pkg.price/12)} / mes</p>
+        <p class="pkg-desc">${pkg.desc}</p>
+        <ul class="pkg-feats">
+          ${pkg.features.map(f => `<li class="${f.has ? 'has' : 'lacks'}">${f.t}</li>`).join('')}
+        </ul>
+        <a href="https://socsirt.cedia.edu.ec/reportar-incidente/" target="_blank" class="pkg-cta">
+          ${isRec ? 'Solicitar este paquete' : 'Más información'}
+        </a>
+      </div>`;
+  }).join('');
+
+  document.getElementById('maturity_fill').style.width = ((recommendedIdx + 1) * 25) + '%';
+  document.querySelectorAll('.maturity-stop').forEach((el, i) => {
+    el.classList.toggle('active', i === recommendedIdx);
+  });
+}
+
+function calc() {
+  const ingresos  = +document.getElementById('s_ingresos').value;
+  const dias      = +document.getElementById('s_dias').value;
+  const prob      = +document.getElementById('s_prob').value / 100;
+  const empleados = +document.getElementById('s_empleados').value;
+
+  document.getElementById('o_ingresos').textContent  = fmt(ingresos);
+  document.getElementById('o_dias').textContent      = dias + ' días';
+  document.getElementById('o_prob').textContent      = Math.round(prob * 100) + '%';
+  document.getElementById('o_empleados').textContent = empleados + ' empleados';
+
+  const ingDiario    = ingresos / 22;
+  const perdidaOp    = ingDiario * dias;
+  const costoRec     = perdidaOp * 0.35;
+  const costoPersona = empleados * dias * 8 * 12;
+  const costoRep     = ingresos * 0.08;
+  const multaLopdp   = ingresos * 0.05;
+  const total        = perdidaOp + costoRec + costoPersona + costoRep + multaLopdp;
+  const esperada     = total * prob;
+
+  const recIdx = recommend(esperada, ingresos, empleados);
+  const pkg    = PACKAGES[recIdx];
+
+  const ahorro = esperada - pkg.price;
+  const roi    = (ahorro / pkg.price) * 100;
+
+  const rows = [
+    ['Pérdida operativa (' + dias + ' días)',             perdidaOp],
+    ['Recuperación y remediación técnica',                costoRec],
+    ['Productividad perdida (' + empleados + ' empleados)', costoPersona],
+    ['Daño reputacional estimado',                        costoRep],
+    ['Riesgo de multa LOPDP (Ecuador)',                   multaLopdp]
+  ];
+  let html = rows.map(([l, v]) =>
+    `<div class="brow"><span class="blabel">${l}</span><span class="bamount">${fmt(v)}</span></div>`
+  ).join('');
+  html += `<div class="brow total-row"><span class="blabel">Total estimado del incidente</span><span class="bamount">${fmt(total)}</span></div>`;
+  document.getElementById('breakdown').innerHTML = html;
+
+  document.getElementById('m_incidente').textContent   = fmt(total);
+  document.getElementById('m_esperada').textContent    = fmt(esperada);
+  document.getElementById('m_paquete').textContent     = pkg.name;
+  document.getElementById('m_paquete_price').textContent = fmt(pkg.price) + ' / año';
+
+  const roiEl = document.getElementById('m_roi');
+  roiEl.textContent = (roi > 0 ? '+' : '') + Math.round(roi) + '%';
+
+  const maxBar = Math.max(total, esperada, pkg.price);
+  const w = v => Math.max(6, Math.round((v / maxBar) * 92)) + '%';
+  document.getElementById('bar_inc').style.width = w(total);
+  document.getElementById('bar_esp').style.width = w(esperada);
+  document.getElementById('bar_ced').style.width = w(pkg.price);
+  document.getElementById('bar_lbl_inc').textContent = fmt(total);
+  document.getElementById('bar_lbl_esp').textContent = fmt(esperada);
+  document.getElementById('bar_lbl_ced').textContent = fmt(pkg.price);
+  document.getElementById('bar_lbl_pkg_name').textContent = 'Paquete ' + pkg.name + ' (recomendado)';
+
+  const vbox = document.getElementById('verdict_box');
+  const probPct = Math.round(prob * 100);
+
+  if (roi > 0) {
+    vbox.className = 'verdict positive';
+    const mult = Math.round(total / pkg.price * 10) / 10;
+    vbox.innerHTML = `
+      <span class="verdict-tag">Inversión justificada</span>
+      <h3>El paquete ${pkg.name} cuesta ${mult}× menos que el incidente.</h3>
+      <p>Con ${probPct}% de probabilidad este año, tu pérdida esperada es <strong style="color:var(--coral-light)">${fmt(esperada)}</strong>. El paquete <strong>${pkg.name}</strong> a ${fmt(pkg.price)}/año te protege con un ahorro neto de <strong style="color:var(--green-mid)">${fmt(ahorro)}</strong> — ROI: +${Math.round(roi)}%.</p>`;
+  } else {
+    vbox.className = 'verdict neutral';
+    vbox.innerHTML = `
+      <span class="verdict-tag">Inversión preventiva</span>
+      <h3>El paquete ${pkg.name} construye madurez antes del incidente.</h3>
+      <p>Hoy tu pérdida esperada es ${fmt(esperada)} — menor al costo anual del paquete. Sin embargo, ${pkg.name} (${pkg.maturity.toLowerCase()}) te prepara contra escenarios más graves y construye capacidades operativas sostenibles. Es la diferencia entre reaccionar y anticipar.</p>`;
+  }
+
+  renderPackages(recIdx);
+}
+
+calc();
+</script>
+</body>
+</html>
