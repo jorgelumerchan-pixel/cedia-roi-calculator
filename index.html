@@ -49,7 +49,7 @@
         document.getElementById('login-screen').style.display = 'none';
         document.body.style.display = 'block';
         document.body.style.height = 'auto';
-        fetch('calculator.html')
+        fetch('cedia_roi_calculator.html')
             .then(r => r.text())
             .then(data => {
                 document.getElementById('main-content').innerHTML = data;
